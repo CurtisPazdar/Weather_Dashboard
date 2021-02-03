@@ -1,0 +1,55 @@
+/* Creating styling for the header as well as positioning */
+header {
+  text-align: center;
+  font-size: 42px;
+  height: 80px;
+  background-color: steelblue;
+  border: black;
+  border-style: solid;
+  border-width: 1px;
+  color: white;
+}
+
+/* changing font color to white for the large headers */
+#searchCityText,
+#fiveDay {
+  color: white;
+}
+
+/* Setting a background style to the main body */
+body {
+  background-color: lightslategrey;
+}
+
+/* making sure the header icon does not appear to big and that it comes in from the right hand side of the screen */
+#headerIcon {
+  height: 200px;
+  width: 200px;
+  position: absolute;
+  right: 50px;
+}
+
+/* setting properties for the cards that display the five day forecast and the daily forecast */
+.card {
+  margin: 4px;
+  border: black;
+  border-style: solid;
+  border-width: 1px;
+  background-color: steelblue;
+  color: white;
+}
+
+/* changing the alignment of the date on the five day forecast  */
+.smallDate {
+  text-align: center;
+}
+
+/* the formating of the buttons that are generated as the search history */
+.selectorButton {
+  width: 100%;
+  height: 10%;
+  text-align: center;
+  background-color: steelblue;
+  color: white;
+  font-size: 18px;
+}

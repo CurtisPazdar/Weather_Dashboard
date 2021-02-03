@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <link href="style.css" rel="stylesheet">
+
+
+
+
+</head>
+
+<body>
+    <!-- html layout using the grid from bootstrap -->
+    <header>
+        Weather Dashboard
+    </header>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="column col-4">
+                <h1 id="searchCityText">Search for a City:</h1>
+                <div class="input-group">
+                    <div class="form-outline">
+                      <input type="search" id="form1" class="form-control" />
+                    </div>
+                    <button type="button" id="searchBtn" class="btn btn-primary">
+                      <i class="fas fa-search"></i>
+                    </button>
+                  </div>
+                  <!-- div that the past search buttons are appended too  -->
+                <div id="searchResults"></div>
+            </div>
+            <div class="column col-8" id="presentationArea" style="display:none;">
+                <div class="row">
+                    <div class="column col-12">
+                        <!-- Daily forecast area -->
+                        <div class="card">
+                            <h1 id="mainHeader">
+                            </h1>
+                            <img id="headerIcon" src="" alt="Weather Emoji"></img>
+                            <p id="temperature"></p>
+                            <p id="humidity"></p>
+                            <p id="windSpeed"></p>
+                            <p id="uvIndex"></p>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="row"">
+                    <div class="column col-12">
+                        <!-- area for the five day forecast information  -->
+                        <h1 id="fiveDay">5-Day Forecast:</h1>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="column col-12">
+                        <!-- area that displays the five day forecast cards. They are displayed horizontally due to the card-group class -->
+                        <div class="card-group">
+                            <div class="card">
+                                <p id="date2" class="smallDate"></p>
+                                <img id="emoji2"></img>
+                                <p id="temperature2"></p>
+                                <p id="humidity2"></p>
+                            </div>
+                            <div class="card">
+                                <p id="date3"  class="smallDate"></p>
+                                <img id="emoji3"></img>
+                                <p id="temperature3"></p>
+                                <p id="humidity3"></p>
+                            </div>
+                            <div class="card">
+                                <p id="date4" class="smallDate"></p>
+                                <img id="emoji4"></img>
+                                <p id="temperature4"></p>
+                                <p id="humidity4"></p>
+                    
+                            </div>
+                            <div class="card">
+                                <p id="date5" class="smallDate"></p>
+                                <img id="emoji5"></img>
+                                <p id="temperature5"></p>
+                                <p id="humidity5"></p>
+                            </div>
+                            <div class="card">
+                                <p id="date6" class="smallDate"></p>
+                                <img id="emoji6"></img>
+                                <p id="temperature6"></p>
+                                <p id="humidity6"></p>
+                            </div>
+                        </div>            
+                    </div>
+            </div>   
+        </div>
+    </div>
+
+    <!-- links to jquery and the JavaScript needed for bootstrap -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        
+       
+    
+    //On click of the search button begin the renderWeather function
+       $('#searchBtn').on("click", function renderWeather() {
+
+        //grab the term put into the form and set that value to the variable search term
+            var searchTerm = $("#form1").val();
+
+            //make an api query using the search term put together
+
+            var apiQuery = "https://api.openweathermap.org/data/2.5/weather?q=" + searchTerm + "&appid=cba99239d0f45ea0a47640243ea4da76";
+            
+            //ajax call to bring in api data 
+            $.ajax ({            
+       		 url: apiQuery,
+       		 method: "GET"
+   			}).then(function(response) {
+
+                //Isolate the latitude and longitude variables from this api search to be used in our next call.
+                var searchLat = response.coord.lat;
+                var SearchLong = response.coord.lon;
+
+                //The second api query formula put together using the lat and long brought in from our first call.
+
+                var apiQuery2 = "https://api.openweathermap.org/data/2.5/onecall?lat=" + searchLat + "&lon=" + SearchLong + "&exclude={part}&appid=cba99239d0f45ea0a47640243ea4da76";
+
+                
+                  //ajax call to bring in api data
+                $.ajax ({            
+       		    url: apiQuery2,
+       		    method: "GET"
+   			    }).then(function(secondResults) {
+
+    
+                    //variables for tempOriginal and tempConverted. Converts kelvin to fahrenheit
+
+                    var tempOriginal = secondResults.current.temp
+                    var tempConverted = parseFloat(((secondResults.current.temp)-273.15) * (9/5) + 32).toFixed(0);
+
+                    //Current Day formula
+                    var today = new Date();
+
+                    var dayOfMonth = today.getDate();
+                    var month = today.getMonth()+1; 
+                    var year = today.getFullYear();
+
+                    //Date formula that will display the next five days
+                    today = "("+month+"/"+dayOfMonth+"/"+year+")"
+                    var day1 = "("+month+"/"+(dayOfMonth+1)+"/"+year+")"
+                    var day2 = "("+month+"/"+(dayOfMonth+2)+"/"+year+")"
+                    var day3 = "("+month+"/"+(dayOfMonth+3)+"/"+year+")"
+                    var day4 = "("+month+"/"+(dayOfMonth+4)+"/"+year+")"
+                    var day5 = "("+month+"/"+(dayOfMonth+5)+"/"+year+")"
+                    
+                    
+            
+
+                    //the display style to block so the div with all this below appears.
+                    $("#presentationArea").attr("style","display:block;")
+
+                    $("#mainHeader").text(searchTerm+" "+today+" ");
+                    $("#headerIcon").attr("src","http://openweathermap.org/img/w/"+secondResults.current.weather[0].icon+".png")
+                    $("#temperature").text(" Temperature: "+tempConverted+"°F");
+                    $("#humidity").text(" Humidity: "+secondResults.current.humidity+"%");
+                    $("#windSpeed").text(" Wind Speed: "+secondResults.current.wind_speed+" MPH");
+                    $("#uvIndex").text(" UV Index: "+secondResults.current.uvi);
+
+                    //One day out displays
+
+                    $("#date2").text(day1);
+                    $("#temperature2").text(" Temp: "+parseFloat(((secondResults.daily[0].temp.day)-273.15) * (9/5) + 32).toFixed(0)+"°F");
+                    $("#emoji2").attr("src","http://openweathermap.org/img/w/"+secondResults.daily[0].weather[0].icon+".png");
+                    $("#humidity2").text(" Humidity: "+secondResults.daily[0].humidity+"%");
+
+
+                    //Two day out displays
+
+                    $("#date3").text(day2);
+                    $("#temperature3").text(" Temp: "+parseFloat(((secondResults.daily[1].temp.day)-273.15) * (9/5) + 32).toFixed(0)+"°F");
+                    $("#emoji3").attr("src","http://openweathermap.org/img/w/"+secondResults.daily[1].weather[0].icon+".png");
+                    $("#humidity3").text(" Humidity: "+secondResults.daily[1].humidity+"%");
+
+
+                    //Three day out displays
+                    $("#date4").text(day3);
+                    $("#temperature4").text(" Temp: "+parseFloat(((secondResults.daily[2].temp.day)-273.15) * (9/5) + 32).toFixed(0)+"°F");
+                    $("#emoji4").attr("src","http://openweathermap.org/img/w/"+secondResults.daily[2].weather[0].icon+".png");
+                    $("#humidity4").text(" Humidity: "+secondResults.daily[2].humidity+"%");
+
+
+
+                    //Four day out displays
+                    $("#date5").text(day4);
+                    $("#temperature5").text(" Temp: "+parseFloat(((secondResults.daily[3].temp.day)-273.15) * (9/5) + 32).toFixed(0)+"°F");
+                    $("#emoji5").attr("src","http://openweathermap.org/img/w/"+secondResults.daily[3].weather[0].icon+".png");
+                    $("#humidity5").text(" Humidity: "+secondResults.daily[3].humidity+"%");
+
+
+
+                    //Five day out displays
+                    $("#date6").text(day5);
+                    $("#temperature6").text(" Temp: "+parseFloat(((secondResults.daily[4].temp.day)-273.15) * (9/5) + 32).toFixed(0)+"°F");
+                    $("#emoji6").attr("src","http://openweathermap.org/img/w/"+secondResults.daily[4].weather[0].icon+".png");
+                    $("#humidity6").text(" Humidity: "+secondResults.daily[4].humidity+"%");
+
+
+                    //Function to add the search entry to the local storage so it can be accessed again.
+                    function savedCities(entry){
+                    
+                        var savedCs = JSON.parse(localStorage.getItem("Saved Cities") || "[]");
+                   
+                        savedCs.push(entry);
+                   
+                        localStorage.setItem("Saved Cities", JSON.stringify(savedCs));
+                     
+                        return savedCs;
+                    }
+
+                    //function declared above run with the search term.
+
+                    savedCities(searchTerm);
+                    
+
+                    //create an object from the saved cities string so we can access the data.
+                    var cityButtons = JSON.parse(localStorage.getItem("Saved Cities"))
+
+                    //clear the string each time as not to double append buttons
+                    
+                    $("#searchResults").empty();
+
+                    //for loop that creates and appends buttons for the length of cityButtons 
+                    for (var i = 0; i < cityButtons.length; i++) {
+                        var buttonEl = $("<button class=selectorButton>");
+                        buttonEl.text(cityButtons[i]);
+                        $("#searchResults").append(buttonEl);
+                    }
+                    
+                
+
+
+                    //Now run our formula above again when you click on the created buttons but this time for searchTerm use the text content of the button clicked. 
+                    $(".selectorButton").on("click",function(event){
+
+                        var searchTerm = event.target.textContent;
+
+                        var apiQuery = "https://api.openweathermap.org/data/2.5/weather?q=" + searchTerm + "&appid=cba99239d0f45ea0a47640243ea4da76";
+
+
+                        $.ajax ({            
+                            url: apiQuery,
+                            method: "GET"
+                        }).then(function(response) {
+
+
+                            var searchLat = response.coord.lat;
+                            var SearchLong = response.coord.lon;
+
+                            console.log(searchLat)
+
+                            var apiQuery2 = "https://api.openweathermap.org/data/2.5/onecall?lat=" + searchLat + "&lon=" + SearchLong + "&exclude={part}&appid=cba99239d0f45ea0a47640243ea4da76";
+
+                            console.log(apiQuery2)
+
+                            $.ajax ({            
+                            url: apiQuery2,
+                            method: "GET"
+                            }).then(function(secondResults) {
+
+
+                                console.log(secondResults)
+
+                                var tempOriginal = secondResults.current.temp
+                                var tempConverted = parseFloat(((secondResults.current.temp)-273.15) * (9/5) + 32).toFixed(0);
+
+                                //Current Day Displays 
+                                var today = new Date();
+
+                                var dayOfMonth = today.getDate();
+                                var month = today.getMonth()+1; 
+                                var year = today.getFullYear();
+
+                                today = "("+month+"/"+dayOfMonth+"/"+year+")"
+                                var day1 = "("+month+"/"+(dayOfMonth+1)+"/"+year+")"
+                                var day2 = "("+month+"/"+(dayOfMonth+2)+"/"+year+")"
+                                var day3 = "("+month+"/"+(dayOfMonth+3)+"/"+year+")"
+                                var day4 = "("+month+"/"+(dayOfMonth+4)+"/"+year+")"
+                                var day5 = "("+month+"/"+(dayOfMonth+5)+"/"+year+")"
+                                
+                                console.log(day5)
+                            
+                                console.log(secondResults.current.weather[0].icon)
+
+                                //the display style to block so the div with all this below appears.
+                                $("#presentationArea").attr("style","display:block;")
+
+                                $("#mainHeader").text(searchTerm+" "+today+" ");
+                                $("#headerIcon").attr("src","http://openweathermap.org/img/w/"+secondResults.current.weather[0].icon+".png")
+                                $("#temperature").text(" Temperature: "+tempConverted+"°F");
+                                $("#humidity").text(" Humidity: "+secondResults.current.humidity+"%");
+                                $("#windSpeed").text(" Wind Speed: "+secondResults.current.wind_speed+" MPH");
+                                $("#uvIndex").text(" UV Index: "+secondResults.current.uvi);
+
+                                //One day out displays
+
+                                $("#date2").text(day1);
+                                $("#temperature2").text(" Temp: "+parseFloat(((secondResults.daily[0].temp.day)-273.15) * (9/5) + 32).toFixed(0)+"°F");
+                                $("#emoji2").attr("src","http://openweathermap.org/img/w/"+secondResults.daily[0].weather[0].icon+".png");
+                                $("#humidity2").text(" Humidity: "+secondResults.daily[0].humidity+"%");
+
+
+                                //Two day out displays
+
+                                $("#date3").text(day2);
+                                $("#temperature3").text(" Temp: "+parseFloat(((secondResults.daily[1].temp.day)-273.15) * (9/5) + 32).toFixed(0)+"°F");
+                                $("#emoji3").attr("src","http://openweathermap.org/img/w/"+secondResults.daily[1].weather[0].icon+".png");
+                                $("#humidity3").text(" Humidity: "+secondResults.daily[1].humidity+"%");
+
+
+                                //Three day out displays
+                                $("#date4").text(day3);
+                                $("#temperature4").text(" Temp: "+parseFloat(((secondResults.daily[2].temp.day)-273.15) * (9/5) + 32).toFixed(0)+"°F");
+                                $("#emoji4").attr("src","http://openweathermap.org/img/w/"+secondResults.daily[2].weather[0].icon+".png");
+                                $("#humidity4").text(" Humidity: "+secondResults.daily[2].humidity+"%");
+
+
+
+                                //Four day out displays
+                                $("#date5").text(day4);
+                                $("#temperature5").text(" Temp: "+parseFloat(((secondResults.daily[3].temp.day)-273.15) * (9/5) + 32).toFixed(0)+"°F");
+                                $("#emoji5").attr("src","http://openweathermap.org/img/w/"+secondResults.daily[3].weather[0].icon+".png");
+                                $("#humidity5").text(" Humidity: "+secondResults.daily[3].humidity+"%");
+
+
+
+                                //Five day out displays
+                                $("#date6").text(day5);
+                                $("#temperature6").text(" Temp: "+parseFloat(((secondResults.daily[4].temp.day)-273.15) * (9/5) + 32).toFixed(0)+"°F");
+                                $("#emoji6").attr("src","http://openweathermap.org/img/w/"+secondResults.daily[4].weather[0].icon+".png");
+                                $("#humidity6").text(" Humidity: "+secondResults.daily[4].humidity+"%");
+                                                
+                            });
+
+
+                        });
+
+                    
+                    });
+
+
+                });
+            });
+       });
+
+      
+    
+
+
+
+    </script>
+
+
+</body>
+
+
+</html>
